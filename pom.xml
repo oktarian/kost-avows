@@ -11,7 +11,7 @@
 	<groupId>com.technicalassessment</groupId>
 	<artifactId>kostavows</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>kostavows</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
