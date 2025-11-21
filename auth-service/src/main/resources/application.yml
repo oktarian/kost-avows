@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}                     # ← WAJIB PAKAI INI DI RAILWAY
+    url: jdbc:${DATABASE_URL}
     username: ${PGUSER}
     password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
