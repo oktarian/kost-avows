@@ -1,30 +1,26 @@
-# File: docker-compose.yml (taruh di root repo)
 version: '3.8'
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: postgres-kostavows
     restart: unless-stopped
     environment:
       POSTGRES_DB: kostkita
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_INITDB_ARGS: --encoding=UTF-8
     ports:
-      - "5432:5432"                     # biar bisa connect dari laptop (DBeaver, pgAdmin, dll)
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d kostkita"]
+      test: ["CMD", "pg_isready", "-U", "user", "-d", "kostkita"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   auth-service:
-    build: 
-      context: ./auth-service
-      dockerfile: Dockerfile
+    build: ./auth-service
     container_name: auth-service
     restart: unless-stopped
     ports:
@@ -33,15 +29,13 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kostkita
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      JWT_SECRET: rahasia12345678901234567890        # minimal 256-bit untuk HS256
+      JWT_SECRET: rahasia12345678901234567890
     depends_on:
       postgres:
         condition: service_healthy
 
   transaction-service:
-    build:
-      context: ./transaction-service
-      dockerfile: Dockerfile
+    build: ./transaction-service
     container_name: transaction-service
     restart: unless-stopped
     ports:
@@ -51,12 +45,9 @@ services:
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       JWT_SECRET: rahasia12345678901234567890
-      AUTH_SERVICE_URL: http://auth-service:8081
     depends_on:
       postgres:
         condition: service_healthy
-      auth-service:
-        condition: service_started
 
 volumes:
   pgdata:
