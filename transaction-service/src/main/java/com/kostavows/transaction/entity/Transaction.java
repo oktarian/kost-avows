@@ -1,4 +1,4 @@
-package com.technicalassessment.kostavows.transaction.entity;
+package com.kostavows.transaction.entity;
 
 
 import jakarta.persistence.*;

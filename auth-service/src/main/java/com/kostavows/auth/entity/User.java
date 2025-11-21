@@ -1,4 +1,4 @@
-package com.technicalassessment.kostavows.auth.entity;
+package com.kostavows.auth.entity;          
 
 
 import jakarta.persistence.*;

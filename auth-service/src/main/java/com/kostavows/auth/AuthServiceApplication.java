@@ -1,4 +1,4 @@
-package com.technicalassessment.kostavows.auth;
+package com.kostavows.auth;
 
 
 import org.springframework.boot.SpringApplication;

@@ -1,6 +1,7 @@
-package com.technicalassessment.kostavows.auth.repository;
+package com.kostavows.auth.repository;          
 
-import com.technicalassessment.kostavows.auth.entity.User;
+
+import com.kostavows.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,5 +1,4 @@
-package com.technicalassessment.kostavows.transaction.service;
-
+package com.kostavows.transaction.service;               
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

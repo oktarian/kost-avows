@@ -1,4 +1,4 @@
-package com.technicalassessment.kostavows.transaction;
+package com.kostavows.transaction;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

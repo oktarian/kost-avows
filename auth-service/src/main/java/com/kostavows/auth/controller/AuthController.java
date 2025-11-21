@@ -1,5 +1,4 @@
-package com.technicalassessment.kostavows.auth.controller;
-
+package com.kostavows.auth.controller;          
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.technicalassessment.kostavows.auth.entity.User;
-import com.technicalassessment.kostavows.auth.repository.UserRepository;
-import com.technicalassessment.kostavows.auth.service.JwtService;
+import com.kostavows.auth.entity.User;
+import com.kostavows.auth.repository.UserRepository;
+import com.kostavows.auth.service.JwtService;
 import java.util.Map;
 
 @RestController

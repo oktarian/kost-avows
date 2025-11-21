@@ -1,4 +1,4 @@
-package com.technicalassessment.kostavows.transaction.controller;
+package com.kostavows.transaction.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.technicalassessment.kostavows.auth.service.JwtService;
-import com.technicalassessment.kostavows.transaction.entity.Transaction;
-import com.technicalassessment.kostavows.transaction.repository.TransactionRepository;
+import com.kostavows.transaction.service.JwtService;
+import com.kostavows.transaction.entity.Transaction;
+import com.kostavows.transaction.repository.TransactionRepository;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
