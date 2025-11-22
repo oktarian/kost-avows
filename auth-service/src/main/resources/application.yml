@@ -1,27 +1,14 @@
 spring:
   datasource:
-    # Pakai cara ini → paling aman & paling banyak dipakai orang di Railway
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:${DATABASE_URL}   # satu baris ini cukup, pasti jalan!
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update          # atau validate kalau sudah production
-    show-sql: true              # matikan kalau sudah jalan
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update
 
-  # Security default Spring Boot (kalau pakai Spring Security basic auth)
-  security:
-    user:
-      name: admin
-      password: admin
-
-# JWT secret (ganti kalau mau)
 jwt:
-  secret: ${JWT_SECRET:superduperrahasia123}
+  secret: ${JWT_SECRET:rahasia123}
 
-# Port biar Railway senang
 server:
   port: ${PORT:8081}
