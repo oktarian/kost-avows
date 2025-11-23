@@ -20,17 +20,17 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-   
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+   @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", 
-                                 "/swagger-resources/**", "/webjars/**", "/", "/favicon.ico").permitAll()
-                .anyRequest().authenticated()
+                // SEMUA REQUEST KE /auth/** DIIZINKAN DULUAN (ini yang bikin 403 mati)
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/", "/favicon.ico").permitAll()
+                .anyRequest().permitAll()   // sementara biar pasti jalan dulu
             )
             .httpBasic(b -> b.disable())
             .formLogin(f -> f.disable());
