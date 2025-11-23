@@ -17,11 +17,12 @@ jwt:
 
 server:
   port: ${PORT:8082}
-  servlet:
-    context-path: /
   forward-headers-strategy: framework
+
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
-    url: /v3/api-docs
+    path: /swagger-ui.html           
+    enabled: true
+  show-actuator: true
