@@ -76,7 +76,7 @@ public class TransactionController {
         return ResponseEntity.ok(response);
     }
 
-   @GetMapping("/sisa-hidup")
+   @GetMapping("/sisa")
     public ResponseEntity<Map<String, Object>> sisaHidup(@RequestHeader("Authorization") String token) {
 
         Long userId = 1L; // Simulasi user yang login

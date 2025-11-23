@@ -2,63 +2,95 @@ package com.kostavows.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.context.annotation.Bean;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
+import java.util.Arrays;
 
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 1. Matikan CSRF (karena pakai JWT)
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // 2. CORS – biar Swagger & frontend dari domain lain bisa akses
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // 3. Stateless (JWT, bukan session)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // 4. Aturan akses endpoint
             .authorizeHttpRequests(auth -> auth
-                // INI YANG BARU & PALING LENGKAP (springdoc-openapi 2.x)
+                // Swagger UI & OpenAPI docs → semua boleh akses
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
-                    "/v3/api-docs",
                     "/swagger-resources/**",
-                    "/swagger-resources",
                     "/webjars/**"
                 ).permitAll()
 
-                // Register & login bebas
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                // Register & Login → publik
+                .requestMatchers("/auth/register", "/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
 
-                // Root biar ga 403
-                .requestMatchers("/").permitAll()
+                // Root & favicon biar ga 403
+                .requestMatchers("/", "/favicon.ico").permitAll()
 
-                // Sisanya butuh JWT (nanti dicek manual di filter)
-                .anyRequest().permitAll()   // sementara biar semua bisa akses dulu
+                // Semua endpoint lain → wajib JWT (nanti dicek di JwtAuthenticationFilter)
+                .anyRequest().authenticated()
             )
-            .httpBasic(b -> b.disable())
-            .formLogin(f -> f.disable());
+
+            // 5. Matikan Basic Auth & Form Login biar ga muncul pop-up
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .formLogin(form -> form.disable());
+
+        // JWT Filter akan kamu tambahkan nanti di class terpisah (JwtAuthenticationFilter)
+        // http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // CORS – biar Swagger & frontend dari Vercel/Netlify/127.0.0.1 bisa akses
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(Arrays.asList("*"));        // sementara semua domain
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
+
+    // Password encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // AuthenticationManager (dipakai di AuthController untuk login)
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
