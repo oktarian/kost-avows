@@ -2,21 +2,46 @@ package com.kostavows.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // Swagger UI & OpenAPI docs bebas akses
+                .requestMatchers(
+                    "/swagger-ui/**", 
+                    "/swagger-ui.html", 
+                    "/v3/api-docs/**", 
+                    "/swagger-resources/**", 
+                    "/webjars/**"
+                ).permitAll()
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+                // Endpoint register & login bebas akses (auth-service)
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+
+                // Semua endpoint transaction-service bebas akses (karena pakai JWT dari header)
+                .requestMatchers("/api/transactions/**").permitAll()
+
+                // Root & actuator (kalau ada) bebas akses
+                .requestMatchers("/", "/actuator/**").permitAll()
+
+                // Sisanya butuh autentikasi (JWT akan dicek manual di filter)
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(form -> form.disable());
+
+        return http.build();
     }
 }
