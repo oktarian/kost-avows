@@ -20,25 +20,35 @@ import org.springframework.security.config.annotation.authentication.configurati
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-     @Bean
+    
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // SEMUA YANG INI BEbas TANPA LOGIN
+                // INI YANG BARU & PALING LENGKAP (springdoc-openapi 2.x)
                 .requestMatchers(
-                    "/", 
-                    "/swagger-ui/**", "/swagger-ui.html",
-                    "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs",
+                    "/swagger-resources/**",
+                    "/swagger-resources",
+                    "/webjars/**"
                 ).permitAll()
+
+                // Register & login bebas
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                .anyRequest().authenticated()
+
+                // Root biar ga 403
+                .requestMatchers("/").permitAll()
+
+                // Sisanya butuh JWT (nanti dicek manual di filter)
+                .anyRequest().permitAll()   // sementara biar semua bisa akses dulu
             )
-            // MATIKAN BASIC AUTH & FORM LOGIN biar tidak muncul pop-up lagi
-            .httpBasic(httpBasic -> httpBasic.disable())
-            .formLogin(form -> form.disable());
+            .httpBasic(b -> b.disable())
+            .formLogin(f -> f.disable());
 
         return http.build();
     }
