@@ -23,34 +23,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Swagger UI & OpenAPI docs bebas akses
+                // SEMUA YANG INI BEbas TANPA LOGIN
                 .requestMatchers(
-                    "/swagger-ui/**", 
-                    "/swagger-ui.html", 
-                    "/v3/api-docs/**", 
-                    "/swagger-resources/**", 
-                    "/webjars/**"
+                    "/", 
+                    "/swagger-ui/**", "/swagger-ui.html",
+                    "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"
                 ).permitAll()
-
-                // Endpoint register & login bebas akses (auth-service)
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-
-                // Semua endpoint transaction-service bebas akses (karena pakai JWT dari header)
-                .requestMatchers("/api/transactions/**").permitAll()
-
-                // Root & actuator (kalau ada) bebas akses
-                .requestMatchers("/", "/actuator/**").permitAll()
-
-                // Sisanya butuh autentikasi (JWT akan dicek manual di filter)
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults())
+            // MATIKAN BASIC AUTH & FORM LOGIN biar tidak muncul pop-up lagi
+            .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(form -> form.disable());
 
         return http.build();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
